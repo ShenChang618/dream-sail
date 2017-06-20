@@ -1,0 +1,80 @@
+.calendar {
+  table-layout: fixed;
+  width: 100%;
+  font-size: 14px;
+  background-color: #fff;
+}
+
+.calendar td,
+.calendar th {
+  width: 14.286%;
+  vertical-align: middle;
+  text-align: center;
+  cursor: pointer;
+}
+.calendar th {
+  line-height: 30px;
+}
+.calendar td::before,
+.calendar .special,
+.calendar .highlight {
+  display: block;
+  /*width: 40px;
+  height: 40px;*/
+  width: 100%;
+  height: 100%;
+  font-weight: 400;
+}
+.calendar td {
+  position: relative;
+  font-size: 1em;
+  line-height: 40px;
+}
+.calendar td::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+}
+.calendar th {
+  font-size: .6em;
+  font-weight: 200;
+  color: #fff;
+  background-color: #007aff;
+}
+.calendar .special {
+  color: #999;
+}
+.calendar .highlight {
+  color: #fff;
+  background-color: #007aff;
+}
+.calendar td.tap-highlight {
+  color: #fff;
+  background-color: #999;
+}
+.calendar td.tap-highlight .special {
+  color: #fff;
+}
+
+.calendar .disabled .special,
+.calendar .disabled {
+  color: #ccc;
+}
+.today-btn {
+  position: fixed;
+  z-index: 11;
+  top: 0;
+  left: 50%;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  margin-left: -18px;
+  font-size: 20px;
+  text-align: center;
+  color: #007aff;
+  background-color: #fff;
+  border: 0 none;
+  border-radius: 50%;
+}

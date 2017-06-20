@@ -1,0 +1,61 @@
+/* 字体图标 */
+@font-face {
+  font-family: "iconfont";
+  src: url('../fonts/iconfont.ttf') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-language:before { content: "\e614"; }
+.icon-examination:before { content: "\e77e"; }
+.icon-computer:before { content: "\e77f"; }
+.icon-profession:before { content: "\e608"; }
+.icon-design:before { content: "\e81d"; }
+.icon-life:before { content: "\e627"; }
+.icon-other:before { content: "\e669"; }
+
+.icon-jia1:before { content: "\e6d1"; }
+.icon-correct:before { content: "\e616"; }
+.icon-order-copy:before { content: "\e61f"; }
+.icon-home:before { content: "\e653"; }
+.icon-lishi3:before { content: "\e66e"; }
+.icon-lishi:before { content: "\e670"; }
+.icon-lishi4:before { content: "\e633"; }
+.icon-lishi1:before { content: "\e8c4"; }
+.icon-lishi2:before { content: "\e6fc"; }
+.icon-shezhi:before { content: "\e615"; }
+.icon-leftSlide:before { content: "\e600"; }
+
+/* 特殊字体 */
+@font-face {
+  font-family: 'numberfont';
+  src: url('../fonts/numberfont.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.numberfont {
+  font-family: 'numberfont';
+  font-size: 1rem;
+  font-style: normal;
+}
+
+/* 特殊字体 */
+@font-face {
+  font-family: 'normalfont';
+  src: url('../fonts/normal.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+.normalfont {
+  font-family: 'normalfont';
+  font-size: 1rem;
+  font-style: normal;
+}
