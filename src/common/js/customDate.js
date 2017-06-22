@@ -88,6 +88,7 @@ const customDate = {
     } );
   },
   everyDay: () => {},
+
   weekly( plus ) {
     this.list = [];
     weekday.forEach( value => this.list.push( {
@@ -97,6 +98,7 @@ const customDate = {
 
     _actionSheet( this.date.weekly, this.execDate );
   },
+
   monthly( plus ) {
     this.list = [];
 

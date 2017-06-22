@@ -53,7 +53,7 @@ let value = {
 ```
 7. 拷贝对象，有个简便的方式，通过`JSON`的两个转换方法实现：
 ```javascript
-JSON.parse( JSON.stringify( obj )
+JSON.parse( JSON.stringify( obj ) );
 ```
 
 ## 运行准备

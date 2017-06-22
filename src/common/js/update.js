@@ -6,7 +6,6 @@ let wgtVer = null;
 
 function plusReady() {
   // 获取本地应用资源版本号
-  console.log( plus );
   plus.runtime.getProperty( plus.runtime.appid, function ( inf ) {
     wgtVer = inf.version;
 
@@ -29,7 +28,6 @@ mui.plusReady( function () {
 const checkUrl = 'http://www.cfmwsc.cn/update/dreamSail/checkDreamSail.php';
 
 function checkUpdate( flag = false ) {
-  console.log( `plus 是否存在 ${plus}` );
   if ( plus === null ) {
     return;
   }
@@ -41,7 +39,6 @@ function checkUpdate( flag = false ) {
   const xhr = new XMLHttpRequest();
 
   xhr.onreadystatechange = function () {
-    console.log( '测试 xhr 运行' );
     if ( xhr.readyState === 4 ) {
       console.log( '测试 xhr.readyState === 4' );
       if ( flag ) {
@@ -66,8 +63,6 @@ function checkUpdate( flag = false ) {
           }
         }
       } else {
-        console.log( '检测更新失败！' );
-
         if ( flag ) {
           plus.nativeUI.alert( '检测更新失败！' );
         }
@@ -89,7 +84,6 @@ function downWgt() {
     filename: '_doc/update/',
     timeout: 10,
   }, function ( d, status ) {
-    console.log( '正在下载' );
     if ( status === 200 ) {
       console.log( `下载wgt成功：${d.filename}` );
 

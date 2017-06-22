@@ -21,9 +21,10 @@ import HomeBackdrop from './components/homeBackdrop/homeBackdrop';
 import HomeUncertainTimeBackdrop from './components/homeUncertainTimeBackdrop/homeUncertainTimeBackdrop';
 import checkUpdate from './common/js/update.js';
 import storage from './common/js/localStorage.js';
+import listenResume from './common/js/listenResume.js';
+import listenPause from './common/js/listenPause.js';
 
 // mui.init();
-// let plus;
 
 export default {
   name: 'app',
@@ -33,55 +34,15 @@ export default {
       if ( storage.get( 'update' ) === true ) {
         checkUpdate();
       }
+
+      listenResume( () => {
+        this.$store.commit( 'changeScreenState', 'resume' );
+      } );
+
+      listenPause( () => {
+        this.$store.commit( 'changeScreenState', 'pause' );
+      } );
     } );
-    // const _self = this;
-    //
-    // mui.plusReady( function () {
-    //   // plus 会在 DOM 加载完毕后存在
-    //   plus = window.plus;
-    //
-    //   // 引入安卓
-    //   const main = plus.android.runtimeMainActivity();
-    //   const Intent = plus.android.importClass( 'android.content.Intent' );
-    //   const IntentFilter = plus.android.importClass( 'android.content.IntentFilter' );
-    //   const Context = plus.android.importClass( 'android.content.Context' );
-    //
-    //   // const PowerManager = plus.android.importClass( 'android.os.PowerManager' );
-    //   const receiver = plus.android.implements( 'io.dcloud.android.content.BroadcastReceiver', {
-    //     onReceive( context, intent ) {
-    //       // const intentInstance = new Intent( 'test' );
-    //
-    //       plus.android.importClass( intent );
-    //
-    //       // console.log( intentInstance.ACTION_SCREEN_ON );
-    //       // if ( intentInstance.ACTION_SCREEN_ON.equals( intent.getAction() ) ) {
-    //       //   _self.onScreenOn( 'bbb' );
-    //       // }
-    //       _self.onScreenOn( '屏幕点亮' );
-    //     },
-    //   } );
-    //
-    //   // 广播接收
-    //   const filter = new IntentFilter( 'test1' );
-    //
-    //   filter.addAction( Intent.ACTION_SCREEN_ON );
-    //   main.registerReceiver( receiver, filter );
-    //
-    //   // 获取屏幕状态
-    //   const power = main.getSystemService( Context.POWER_SERVICE );
-    //   console.log( power );
-    //
-    //   // if ( power.isScreenOn() ) {
-    //   //   console.log( 'aaa' );
-    //   // }
-    //   _self.onScreenOn( '开始监听屏幕' );
-    // } );
-  },
-  methods: {
-    // onScreenOn( data ) {
-    //   console.log( `${data} --- test` );
-    //   // mui( '.mui-off-canvas-wrap' ).offCanvas( 'show' );
-    // },
   },
   components: {
     'v-tabbar': Tabbar,

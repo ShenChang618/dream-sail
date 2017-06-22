@@ -107,7 +107,9 @@ export default {
             customDate[ key ].call( this );
             execDate.active = key;
             execDate.display = date.display;
-            execDate.value = date.value;
+
+            // 出现 data-value 的值变成 "[object Object]" 的 BUG
+            execDate.value = JSON.stringify( date.value );
           }
         } );
 

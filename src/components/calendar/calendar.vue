@@ -6,97 +6,16 @@
 import { mapState } from 'vuex';
 import Calendar from '../../common/js/calendarToDOM.js';
 import { getMonthDayCount } from '../../common/js/getCalendar.js';
-import Database from '../../common/js/indexedDB.js';
-import storage from '../../common/js/localStorage.js';
-import formatDate from '../../common/js/date.js';
-import { database, weekday } from '../../common/js/data.js';
 import { touchLeft, touchRight } from '../../common/js/events.js';
+import queryData from '../../common/js/queryData.js';
+import resetDatabaseState from '../../common/js/resetDatabaseState.js';
+import isYesterday from '../../common/js/isYesterday.js';
 
-const dbTask = new Database( {
-  name: database.DB_TASK_NAME,
-  objectStore: database.DB_OBJECT_STORE_TASK,
-} );
-const dbHistory = new Database( {
-  name: database.DB_HISTORY_NAME,
-  objectStore: database.DB_OBJECT_STORE_HISTORY,
-} );
-
+const btn = document.createElement( 'button' );
 let calendar;
 
-function resetDatabaseState( inputDataList ) {
-  const tempDate = new Date();
-  const todayDate = new Date( tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate() );
-  const todayTimeStamp = +todayDate;
-  const cacheTime = storage.get( 'cacheTime' );
-
-  if ( cacheTime !== todayTimeStamp ) {
-    const yesterday = new Date( cacheTime );
-    const yesterdayRange = IDBKeyRange.only( `${yesterday.getFullYear()}-${yesterday.getMonth() + 1}-${yesterday.getDate()}-*` );
-
-    // 重置成今天的日期
-    storage.set( 'cacheTime', todayTimeStamp );
-    storage.set( 'todayGold', 0 );
-
-    // 重置今天数据的状态
-    inputDataList.forEach( ( item, index ) => {
-      item.unique = todayTimeStamp;
-
-      // 如果昨天的任务完成，不清零连续日期
-      if ( item.state !== 2 ) {
-        item.continuityDate = 0;
-      }
-      item.state = 0;
-      item.tempCount = item.execCount;
-
-      dbTask.update( item );
-    } );
-
-    // 删除一次性的过期任务，并把已完成的放入数据库
-    dbTask.query( 'index', 'execDate', { range: yesterdayRange }, ( data ) => {
-      data.forEach( ( item ) => {
-        let isExpire = true;
-
-        item.execDate.forEach( ( date ) => {
-          const dateTimeStamp = +new Date( date.substr( 0, date.length - 2 ) );
-
-          if ( dateTimeStamp >= todayTimeStamp ) {
-            isExpire = false;
-
-            return;
-          }
-        } );
-
-        if ( isExpire === true ) {
-          dbTask.delete( item.id );
-
-          if ( item.state === 2 ) {
-            const historyData = {
-              type: '任务',
-              date: formatDate( yesterday, 'yyyy-MM-dd' ),
-              gold: item.dreamGold * item.completedDate,
-              value: item.title,
-            };
-
-            dbHistory.insert( historyData );
-
-            if ( item.task !== '并没有什么目标哦！' ) {
-              const historyTaskData = {
-                type: '目标',
-                date: formatDate( yesterday, 'yyyy-MM-dd' ),
-                gold: null,
-                value: item.task,
-              };
-
-              dbHistory.insert( historyTaskData );
-            }
-          }
-        }
-      } );
-    } );
-  }
-
-  this.$store.commit( 'changeHomeUnfinishedList', inputDataList );
-}
+btn.className = 'today-btn normalfont';
+btn.innerHTML = '今';
 
 export default {
   name: 'hello',
@@ -108,11 +27,55 @@ export default {
   computed: mapState( {
     homeUnfinishedList: state => state.homeUnfinishedList,
     homeHeader: state => state.homeHeader,
+    homeBackdropFlag: state => state.homeBackdrop.flag,
+    homeUncertainTimeBackdropFlag: state => state.homeUncertainTimeBackdrop.flag,
+    screenState: state => state.screenState,
   } ),
   created() {
-    const _self = this;
+    this.$nextTick( this.createdRun );
+  },
+  watch: {
+    // 下面代码作用为：在进入软件前台后、关闭计时器后刷新主页
+    screenState() {
+      if ( this.screenState === 'pause' ) {
+        return;
+      }
 
-    this.$nextTick( () => {
+      if ( this.homeBackdropFlag === true || this.homeUncertainTimeBackdropFlag === true ) {
+        return;
+      }
+
+      if ( isYesterday() === false ) {
+        return;
+      }
+
+      this.createdRun();
+    },
+    homeBackdropFlag() {
+      if ( this.homeBackdropFlag === true ) {
+        return;
+      }
+
+      if ( isYesterday() === false ) {
+        return;
+      }
+
+      this.createdRun();
+    },
+    homeUncertainTimeBackdropFlag() {
+      if ( this.homeUncertainTimeBackdropFlag === true ) {
+        return;
+      }
+
+      if ( isYesterday() === false ) {
+        return;
+      }
+
+      this.createdRun();
+    },
+  },
+  methods: {
+    createdRun() {
       calendar = new Calendar( document.querySelector( '.calendar-wrapper' ) );
 
       // 多次一举的目的是为了在页面切换时刷新时间，不然在隔天时就会出错
@@ -120,20 +83,23 @@ export default {
       const todayDate = new Date( tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate() );
       const today = todayDate;
       const calendarDOM = document.querySelector( '.calendar-wrapper' );
-      const btn = document.createElement( 'button' );
+      const _self = this;
 
       // 今天按钮
-      btn.className = 'today-btn normalfont';
-      btn.innerHTML = '今';
-      btn.addEventListener( 'tap', event => {
+      btn.addEventListener( 'tap', btnEvent, false );
+
+      function btnEvent( event ) {
         calendar.today();
         setHeaderDate( {
           year: today.getFullYear(),
           month: today.getMonth() + 1,
           day: today.getDate(),
         } );
-        this.queryData();
-      } );
+        _self.queryData();
+
+        // 阻止调用相同事件
+        event.stopImmediatePropagation();
+      };
 
       // 初始化
       this.queryData();
@@ -194,52 +160,13 @@ export default {
           }, 200 );
         }
       }
-    } );
-  },
-  methods: {
+    },
+
     queryData( date ) {
       const tempDate = new Date();
       const todayDate = new Date( tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate() );
       const dateData = date ? new Date( date ) : todayDate;
-      const dateYear = dateData.getFullYear();
-      const dateMonth = dateData.getMonth() + 1;
-      const dateDay = dateData.getDate();
-      const dateWeekday = weekday[ dateData.getDay() ];
-      const rangeList = [
-        IDBKeyRange.only( `${dateYear}-${dateMonth}-${dateDay}-*` ),
-        IDBKeyRange.only( `*-${dateMonth}-${dateDay}-*` ),
-        IDBKeyRange.only( `*-${dateMonth}-*-*` ),
-        IDBKeyRange.only( `*-*-${dateDay}-*` ),
-        IDBKeyRange.only( `*-*-*-${dateWeekday}` ),
-        IDBKeyRange.only( '*-*-*-*' ),
-      ];
-      const maxMonthDay = getMonthDayCount( date );
-      let inputDataList = [];
-      let tempRangeList = [];
-
-      // 一月的最后一天把所有的溢出日期输出
-      if ( maxMonthDay === dateDay ) {
-        // 月份最大 31
-        for ( let i = 31; i > maxMonthDay; i-- ) {
-          tempRangeList.push( IDBKeyRange.only( `*-${dateMonth}-${i}-*` ) );
-          tempRangeList.push( IDBKeyRange.only( `*-*-${i}-*` ) );
-        }
-
-        if ( tempRangeList.length > 0 ) {
-          Array.prototype.unshift.apply( rangeList, tempRangeList );
-        }
-      }
-
-      rangeList.forEach( ( item, index ) => {
-        const obj = {
-          range: item,
-          direction: 'prev',
-        };
-
-        dbTask.query( 'index', 'execDate', obj, ( data ) => {
-          Array.prototype.push.apply( inputDataList, data );
-        } );
-      } );
+      let inputDataList = queryData();
 
       // 计数
       let dataCount = 10;
@@ -254,7 +181,8 @@ export default {
           }
 
           // 重置数据
-          resetDatabaseState.call( this, inputDataList );
+          inputDataList = resetDatabaseState.call( this, inputDataList );
+          this.$store.commit( 'changeHomeUnfinishedList', inputDataList );
         }
 
         dataCount -= 1;

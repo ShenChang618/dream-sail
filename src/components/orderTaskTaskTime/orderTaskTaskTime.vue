@@ -44,9 +44,10 @@ import mui from 'mui';
 import '../../common/js/mui.picker.all.js';
 import storage from '../../common/js/localStorage.js';
 import minuteToHour from '../../common/js/minuteToHour.js';
-import { database, taskTimeFlag } from '../../common/js/data.js';
+import { database, taskTimeFlag, weekday } from '../../common/js/data.js';
 import Database from '../../common/js/indexedDB.js';
 import { removeSlideBUG } from '../../common/js/customDate.js';
+import { getMonthDayCount } from '../../common/js/getCalendar.js';
 
 const storageName = 'taskTime';
 const dbTask = new Database( {
@@ -72,10 +73,50 @@ export default {
     this.$nextTick( () => {
       // 当不限时大于 10 条
       const range = IDBKeyRange.only( '*' );
+      const dateData = new Date();
+      const dateYear = dateData.getFullYear();
+      const dateMonth = dateData.getMonth() + 1;
+      const dateDay = dateData.getDate();
+      const dateWeekday = weekday[ dateData.getDay() ];
+      const maxMonthDay = getMonthDayCount();
+      const rangeList = [
+        `${dateYear}-${dateMonth}-${dateDay}-*`,
+        `*-${dateMonth}-${dateDay}-*`,
+        `*-${dateMonth}-*-*`,
+        `*-*-${dateDay}-*`,
+        `*-*-*-${dateWeekday}`,
+        '*-*-*-*',
+      ];
+      let tempRangeList = [];
+      let count = 0;
+
+      if ( maxMonthDay === dateDay ) {
+        // 月份最大 31
+        for ( let i = 31; i > maxMonthDay; i-- ) {
+          tempRangeList.push( `*-${dateMonth}-${i}-*` );
+          tempRangeList.push( `*-*-${i}-*` );
+        }
+
+        if ( tempRangeList.length > 0 ) {
+          Array.prototype.unshift.apply( rangeList, tempRangeList );
+        }
+      }
 
       dbTask.query( 'index', 'taskTime', { range }, data => {
-        if ( data.length >= 10 ) {
-          this.isPassTen = true;
+        data.map( ( item ) => {
+          if ( isToday( JSON.stringify( item.execDate ) ) ) {
+            count += 1;
+
+            if ( count > 10 ) {
+              this.isPassTen = true;
+            }
+          }
+        } );
+
+        function isToday( value ) {
+          return rangeList.some( item => {
+            return value.indexOf( item ) !== -1;
+          } );
         }
       } );
 

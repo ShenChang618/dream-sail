@@ -17,6 +17,7 @@ const state = {
   homeUnfinishedList: [],
   isHomeToday: true,
   isBuyPage: false,
+  screenState: 'resume',
   homeHeader: {
     year: 0,
     month: 0,
@@ -49,6 +50,9 @@ const mutations = {
   },
   changeStarList( state, payload ) {
     state.starList = payload;
+  },
+  changeScreenState( state, payload ) {
+    state.screenState = payload;
   },
   changeOrderTaskDateList( state, payload ) {
     state.orderTaskDateList = payload;

@@ -139,7 +139,7 @@ export default {
       const homeUncertainTimeBackdropData = this.homeUncertainTimeBackdropData;
 
       homeUncertainTimeBackdropData.state = 2;
-      homeUncertainTimeBackdropData.gold = this.gold;
+      homeUncertainTimeBackdropData.dreamGold = this.gold;
       homeUncertainTimeBackdropData.completedDate += 1;
       homeUncertainTimeBackdropData.continuityDate += 1;
       this.$set( this.homeUnfinishedList, this.homeUncertainTimeBackdrop.index, homeUncertainTimeBackdropData );

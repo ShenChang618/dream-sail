@@ -178,14 +178,19 @@ export default {
         // 1 正在执行
         // 2 完成
         inputData.state = 0;
+
         inputData.execDate = inputData.execDate.match( execDateRegExp );
+        if ( inputData.execDate === null ) {
+          inputData.execDate = '*-*-*-*';
+        }
+
         inputData.unique = +new Date();
         inputData.task = inputData.task === '' ? '并没有什么目标哦！' : inputData.task;
         // inputData.execTime = 0.1;
         // inputData.restTime = 0.1;
         // inputData.dreamGold = 1;
         // inputData.execCount = 2;
-        // inputData.execDate = [ '2017-6-12-*' ];
+        // inputData.execDate = [ '2017-6-21-*' ];
         // inputData.state = 2;
         inputData.tempCount = inputData.execCount;
         dbTask.insert( inputData );

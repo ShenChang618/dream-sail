@@ -58,8 +58,10 @@ import { mapState } from 'vuex';
 import mui from 'mui';
 import minuteToHour from '../../common/js/minuteToHour.js';
 import Database from '../../common/js/indexedDB.js';
+import resetDatabaseState from '../../common/js/resetDatabaseState.js';
 import { getSwitchId, switchExecDateArray } from '../../common/js/switchExecDate.js';
 import { database, today } from '../../common/js/data.js';
+import isYesterday from '../../common/js/isYesterday.js';
 
 const dbTask = new Database( {
   name: database.DB_TASK_NAME,
@@ -80,17 +82,44 @@ export default {
   computed: mapState( {
     taskList: state => state.taskList,
     orderTaskDateList: state => state.orderTaskDateList,
+    screenState: state => state.screenState,
   } ),
+  watch: {
+    screenState() {
+      if ( this.screenState === 'pause' ) {
+        return;
+      }
+
+      if ( isYesterday() === false ) {
+        return;
+      }
+
+      this.createdRun();
+    },
+  },
   created() {
-    this.$nextTick( () => {
+    this.$nextTick( this.createdRun );
+  },
+  methods: {
+    createdRun() {
       // 任务列表输出
       // const keyRange = IDBKeyRange.only( '2017-6-7-*' );
       dbTask.query( null, ( data ) => {
-        this.$store.commit( 'changeTaskList', data );
+        const resultData = resetDatabaseState( data, true );
+
+        if ( resultData === true ) {
+          setTimeout( () => {
+            dbTask.query( null, ( value ) => {
+              console.log( value );
+              this.$store.commit( 'changeTaskList', value );
+            }, { direction: 'prev' } );
+          }, 1000 );
+        } else {
+          this.$store.commit( 'changeTaskList', resultData );
+        }
       }, { direction: 'prev' } );
-    } );
-  },
-  methods: {
+    },
+
     // 修改目标
     controlTask( item ) {
       const btnValue = [ '确定', '取消' ];
