@@ -2,24 +2,23 @@
 
 // 数据库对象
 class Database {
-	constructor( opt ) {
+	constructor( { version = 1, name, objectStore = null } ) {
 		// 初始化对象
 		if ( !window.indexedDB ) {
 			window.indexedDB = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
-			!window.indexedDB && console.log( '浏览器不支持 IndexedDB！' );
+			!window.indexedDB && console.error( '浏览器不支持 IndexedDB！' );
 			window.IDBTransaction = window.IDBTransaction || window.webkitIDBTransaction || window.msIDBTransaction;
 			window.IDBKeyRange = window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
 		}
 
-		this.version = opt.version || 1;
-		this.name = opt.name;
-		this.objectStore = opt.objectStore || null;
+		this.version = version;
+		this.name = name;
+		this.objectStore = objectStore;
 	}
 
-	open( opt ) {
-		opt = opt || {};
-		this.version = opt.version || this.version || 1;
-		this.name = opt.name || this.name;
+	open( { version = this.version, name = this.name } ) {
+		this.version = version;
+		this.name = name;
 		this.request = indexedDB.open( this.name, this.version );
 	}
 
@@ -32,7 +31,7 @@ class Database {
 	}
 
 	run ( fn, opt ) {
-		this.open();
+		this.open( opt );
 
 		this.request.onerror = function ( event ) {
 			console.log( `error: ${event.target.error.message}` );
