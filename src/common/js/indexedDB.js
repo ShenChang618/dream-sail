@@ -16,9 +16,7 @@ class Database {
 		this.objectStore = objectStore;
 	}
 
-	open( { version = this.version, name = this.name } ) {
-		this.version = version;
-		this.name = name;
+	open() {
 		this.request = indexedDB.open( this.name, this.version );
 	}
 
@@ -30,8 +28,8 @@ class Database {
 		this.db.close();
 	}
 
-	run ( fn, opt ) {
-		this.open( opt );
+	run ( fn ) {
+		this.open();
 
 		this.request.onerror = function ( event ) {
 			console.log( `error: ${event.target.error.message}` );

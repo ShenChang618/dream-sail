@@ -62,9 +62,10 @@ function getHTMLData( date ) {
           dataValue.year = result.year;
           dataValue.month = result.month;
         }
+      }
 
       // 今天的日子需要加亮
-      } else if ( value === getHighlight() ) {
+      if ( value === getHighlight() ) {
         value = `<strong class="highlight">${value}</strong>`;
       }
 
@@ -146,11 +147,11 @@ class Calendar {
       const td = this.dom.querySelectorAll( 'td' );
 
       for ( let i = 0; i < td.length; i++ ) {
+        // console.log( td[ i ].innerHTML );
         if ( td[ i ].innerHTML.indexOf( '</strong>' ) !== -1 ) {
           return;
         }
 
-        td[ i ].style.pointerEvents = 'none';
         td[ i ].className = 'disabled';
       }
     }

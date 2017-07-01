@@ -108,7 +108,7 @@ export default {
         month: today.getMonth() + 1,
         day: today.getDate(),
       } );
-      calendar.init( null, ( value ) => {
+      calendar.init( today, ( value ) => {
         const text = `${value.year}-${value.month}-${value.day}`;
 
         toToday( text );
@@ -166,7 +166,7 @@ export default {
       const tempDate = new Date();
       const todayDate = new Date( tempDate.getFullYear(), tempDate.getMonth(), tempDate.getDate() );
       const dateData = date ? new Date( date ) : todayDate;
-      let inputDataList = queryData();
+      let inputDataList = queryData( dateData );
 
       // 计数
       let dataCount = 10;
